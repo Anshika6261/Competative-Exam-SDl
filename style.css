@@ -1,0 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.nav{
+    width: 100vw;
+    height: 80px;
+    display: flex;
+    background-color: black;
+    color: white;
+}
+.nav ul{
+    width: 100vw;
+    align-items: center;
+    list-style: none;
+
+}
+
+.nav ul li{
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav ul li .search {
+    width: 400px;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    color : black;
+    margin-left: 350px;
+}
+
+
+.nav ul li .search .inputSearch{
+    width: 400px;
+    background-color: white;
+    border-radius: 5px;
+    height: 30px;
+}
+.nav ul li .search button{
+    height: 35px;
+    background-color: white;
+    color: black;
+}
+
+.home{
+    margin-left: 100px;
+}
+.about{
+    margin-left: 50px;
+}
+.contact{
+    margin-left: 50px;
+}
+.login{
+    margin-left: 50px;
+}
+.login button,.signUp button{
+    width: 90px;
+    height: 40px;
+    border-radius: 5px;
+}
+.signUp{
+    margin-left: 50px;
+}
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+#exam-list {
+    margin-top: 20px;
+}
+
+.exam-item {
+    padding: 10px;
+    border: 2px solid black;
+    margin: 100px;
+}
+
+.exam-item a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+.exam-item a:hover {
+    text-decoration: underline;
+}
