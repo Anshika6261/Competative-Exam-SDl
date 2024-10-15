@@ -13,5 +13,6 @@ exam_names = [
     "TS EAMCET 2025",
     "AP EAPCET 2025",
     "TS PGECET 2025",
-    "IPU CET 2025"
+    "IPU CET 2025",
+    "IIM CAT"
 ]

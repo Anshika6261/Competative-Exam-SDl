@@ -1,18 +1,33 @@
 import requests
 import json
 import os
-from urllib.parse import urlparse
+import mysql.connector  # Import for MySQL
 from exam_names import exam_names
+
 # Set up your Google Search API key and Custom Search Engine ID
 API_KEY = 'AIzaSyB6UHAMTx9odZni0cwDhLmT6Mj81m83FaQ'
 SEARCH_ENGINE_ID = '77c0d992b4fda4357'
 
+db_config = {
+    'host': 'localhost',
+    'user': 'root',   # replace with your MySQL username
+    'password': 'Anshika@123',  # replace with your MySQL password
+    'database': 'exam_data'
+}
 
-def load_existing_data(filename):
-    if os.path.exists(filename):
-        with open(filename, 'r') as f:
-            return json.load(f)
-    return []
+def connect_to_db():
+    try:
+        conn = mysql.connector.connect(**db_config)
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+def load_existing_data(conn):
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT exam_name FROM exams")
+    rows = cursor.fetchall()
+    return rows
 
 def exam_exists(exam_name, existing_data):
     # Check if the exam already exists in the loaded data
@@ -20,6 +35,16 @@ def exam_exists(exam_name, existing_data):
         if exam['exam_name'].lower() == exam_name.lower():
             return True
     return False
+
+def insert_exam_data(conn, exam_name, title, link):
+    cursor = conn.cursor()
+    # Using ON DUPLICATE KEY UPDATE to handle duplicates
+    sql = """
+    INSERT IGNORE INTO exams (exam_name, title, link) 
+    VALUES (%s, %s, %s)
+    """
+    cursor.execute(sql, (exam_name, title, link))
+    conn.commit()
 
 def search_exam_info(exam_name):
     query = f"{exam_name} official website"
@@ -39,29 +64,14 @@ def search_exam_info(exam_name):
     else:
         return []
 
-query = "List of competitive exams in India 2024 for get engineering college"
-
-def search_competitive_exams(query):
-    url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={SEARCH_ENGINE_ID}&q={query}"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        exam_names = []
-        for item in data.get('items', []):
-            title = item.get('title', '').strip()
-            # Extracting possible exam names from titles
-            exam_names.append(title)
-        return exam_names
-    else:
-        print(f"Error: Unable to fetch data from Google Search API (Status Code: {response.status_code})")
-        return []
-    
 if __name__ == '__main__':
-    # Load existing data from exam_data.json if it exists
+    # Connect to the MySQL database
+    conn = connect_to_db()
+    if conn is None:
+        exit()
 
-    
-    filename = 'exam_data.json'
-    existing_exam_data = load_existing_data(filename)
+    # Load existing data from MySQL
+    existing_exam_data = load_existing_data(conn)
 
     new_exam_data = []
 
@@ -71,13 +81,10 @@ if __name__ == '__main__':
             # Only add if the exam doesn't exist in the current data
             exam_data = search_exam_info(exam)
             if exam_data:
-                new_exam_data.extend(exam_data)
+                for data in exam_data:
+                    insert_exam_data(conn, data['exam_name'], data['title'], data['link'])
+                    new_exam_data.append(data)
 
-    # Combine existing data with new data
-    all_exam_data = existing_exam_data + new_exam_data
-
-    # Save all exam data to JSON file for frontend usage
-    with open(filename, 'w') as f:
-        json.dump(all_exam_data, f, indent=4)
+    conn.close()
 
     print(f"Scraped and saved data for {len(new_exam_data)} new exams.")
